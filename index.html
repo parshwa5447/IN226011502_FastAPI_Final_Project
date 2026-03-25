@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Clinic - Professional UI</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #212b36;
+            --subtext: #637381;
+            --primary: #1d4ed8;
+            --primary-soft: rgba(29, 78, 216, 0.12);
+            --border: #dbeafe;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Inter, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        .title {
+            margin: 0;
+            font-size: 1.9rem;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            color: var(--subtext);
+            font-size: 0.95rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .section-subtitle {
+            margin: 4px 0 12px;
+            color: var(--subtext);
+            font-size: 0.88rem;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button, input[type=text], input[type=number], input[type=date], select {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.93rem;
+        }
+
+        button {
+            cursor: pointer;
+            color: #fff;
+            background: var(--primary);
+            border: none;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        button:hover { background: #1e40af; }
+
+        button.secondary {
+            background: #475569;
+        }
+
+        .small-btn {
+            background: #2563eb;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        .output {
+            margin-top: 10px;
+            background: #f1f5f9;
+            border-left: 3px solid var(--primary);
+            padding: 12px;
+            white-space: pre-wrap;
+            max-height: 260px;
+            overflow: auto;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: end;
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 0.82rem;
+            color: var(--subtext);
+        }
+
+        @media (max-width: 700px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header>
+            <p class="subtitle">FastAPI / In-memory demo with professional UI</p>
+            <h1 class="title">MediCare Clinic API</h1>
+        </header>
+
+        <section class="card">
+            <p class="section-title">Status / Quick Checks</p>
+            <p class="section-subtitle">Check API health and basic endpoint status in one click.</p>
+            <div class="row">
+                <button onclick="getHome()">Home</button>
+                <button onclick="getDoctors()">Get Doctors</button>
+                <button class="secondary" onclick="getAppointments()">Get Appointments</button>
+            </div>
+            <div id="statusOutput" class="output">No output yet.</div>
+        </section>
+
+        <div class="grid">
+            <div class="card">
+                <p class="section-title">Doctors</p>
+                <p class="section-subtitle">View and add doctors (in-memory only).</p>
+
+                <div class="row">
+                    <button onclick="getDoctors()">Refresh Doctors</button>
+                </div>
+
+                <section style="margin-top: 12px;">
+                    <p class="section-subtitle">Add new doctor</p>
+                    <div class="form-grid">
+                        <input id="docName" type="text" placeholder="Name" required>
+                        <input id="docSpec" type="text" placeholder="Specialization" required>
+                        <input id="docFee" type="number" min="0" placeholder="Fee" required>
+                        <input id="docExp" type="number" min="0" placeholder="Experience Years" required>
+                    </div>
+                    <button class="small-btn" onclick="addDoctor()">Add Doctor</button>
+                </section>
+
+                <div id="doctorsOutput" class="output">No output yet.</div>
+            </div>
+
+            <div class="card">
+                <p class="section-title">Appointments</p>
+                <p class="section-subtitle">View and create appointment schedule (in-memory only).</p>
+
+                <div class="row">
+                    <button onclick="getAppointments()">Refresh Appointments</button>
+                </div>
+
+                <section style="margin-top: 12px;">
+                    <p class="section-subtitle">Schedule appointment</p>
+                    <div class="form-grid">
+                        <input id="apptPatient" type="text" placeholder="Patient Name" required>
+                        <input id="apptDocId" type="number" min="1" placeholder="Doctor ID" required>
+                        <input id="apptDate" type="date" required>
+                        <input id="apptType" type="text" placeholder="Appointment Type" required>
+                    </div>
+                    <button class="small-btn" onclick="createAppointment()">Create Appointment</button>
+                </section>
+
+                <div id="appointmentsOutput" class="output">No output yet.</div>
+            </div>
+        </div>
+
+        <footer class="footer">Remember: this demo uses in-memory data only. Refreshing the page resets state.</footer>
+    </div>
+
+    <script>
+        const baseUrl = 'http://localhost:8000';
+
+        async function setStatus(text) {
+            document.getElementById('statusOutput').textContent = text;
+        }
+
+        async function getHome() {
+            try {
+                const res = await fetch(`${baseUrl}/`);
+                const data = await res.json();
+                setStatus('Home endpoint response:\n' + JSON.stringify(data, null, 2));
+            } catch (err) {
+                setStatus('Failed to fetch /: ' + err.message);
+            }
+        }
+
+        async function getDoctors() {
+            try {
+                const res = await fetch(`${baseUrl}/doctors`);
+                const data = await res.json();
+                document.getElementById('doctorsOutput').textContent = JSON.stringify(data, null, 2);
+                setStatus('Doctors fetched successfully. Count: ' + data.total);
+            } catch (err) {
+                document.getElementById('doctorsOutput').textContent = '';
+                setStatus('Failed to fetch /doctors: ' + err.message);
+            }
+        }
+
+        async function addDoctor() {
+            const name = document.getElementById('docName').value;
+            const specialization = document.getElementById('docSpec').value;
+            const fee = Number(document.getElementById('docFee').value);
+            const experience_years = Number(document.getElementById('docExp').value);
+
+            if (!name || !specialization || !fee || !experience_years) {
+                setStatus('All doctor fields are required.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${baseUrl}/doctors`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, specialization, fee, experience_years, is_available: true })
+                });
+                const data = await res.json();
+                setStatus('Add doctor response:\n' + JSON.stringify(data, null, 2));
+                getDoctors();
+            } catch (err) {
+                setStatus('Failed to add doctor: ' + err.message);
+            }
+        }
+
+        async function getAppointments() {
+            try {
+                const res = await fetch(`${baseUrl}/appointments`);
+                const data = await res.json();
+                document.getElementById('appointmentsOutput').textContent = JSON.stringify(data, null, 2);
+                setStatus('Appointments fetched successfully. Count: ' + data.total);
+            } catch (err) {
+                document.getElementById('appointmentsOutput').textContent = '';
+                setStatus('Failed to fetch /appointments: ' + err.message);
+            }
+        }
+
+        async function createAppointment() {
+            const patient_name = document.getElementById('apptPatient').value;
+            const doctor_id = Number(document.getElementById('apptDocId').value);
+            const date = document.getElementById('apptDate').value;
+            const appointment_type = document.getElementById('apptType').value;
+
+            if (!patient_name || !doctor_id || !date || !appointment_type) {
+                setStatus('All appointment fields are required.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${baseUrl}/appointments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patient_name, doctor_id, date, appointment_type })
+                });
+                const data = await res.json();
+                setStatus('Create appointment response:\n' + JSON.stringify(data, null, 2));
+                getAppointments();
+            } catch (err) {
+                setStatus('Failed to create appointment: ' + err.message);
+            }
+        }
+
+        window.onload = async function () {
+            await getHome();
+            await getDoctors();
+            await getAppointments();
+        }
+    </script>
+</body>
+</html>
+    </style>
+</head>
+<body>
+    <h1>MediCare Clinic API Test</h1>
+
+    <h2>Home</h2>
+    <button onclick="getHome()">Get Home Message</button>
+    <pre id="home"></pre>
+
+    <h2>Doctors</h2>
+    <button onclick="getDoctors()">Get Doctors</button>
+    <pre id="doctors"></pre>
+
+    <h3>Add Doctor</h3>
+    <form onsubmit="addDoctor(event)">
+        <input type="text" id="docName" placeholder="Name" required>
+        <input type="text" id="docSpec" placeholder="Specialization" required>
+        <input type="number" id="docFee" placeholder="Fee" required>
+        <input type="number" id="docExp" placeholder="Experience Years" required>
+        <button type="submit">Add Doctor</button>
+    </form>
+    <pre id="addDocResult"></pre>
+
+    <h2>Appointments</h2>
+    <button onclick="getAppointments()">Get Appointments</button>
+    <pre id="appointments"></pre>
+
+    <h3>Create Appointment</h3>
+    <form onsubmit="createAppointment(event)">
+        <input type="text" id="apptPatient" placeholder="Patient Name" required>
+        <input type="number" id="apptDocId" placeholder="Doctor ID" required>
+        <input type="date" id="apptDate" required>
+        <input type="text" id="apptType" placeholder="Type" required>
+        <button type="submit">Create Appointment</button>
+    </form>
+    <pre id="createApptResult"></pre>
+
+    <script>
+        const baseUrl = 'http://localhost:8000';
+
+        async function getHome() {
+            const res = await fetch(`${baseUrl}/`);
+            const data = await res.json();
+            document.getElementById('home').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function getDoctors() {
+            const res = await fetch(`${baseUrl}/doctors`);
+            const data = await res.json();
+            document.getElementById('doctors').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function addDoctor(event) {
+            event.preventDefault();
+            const name = document.getElementById('docName').value;
+            const specialization = document.getElementById('docSpec').value;
+            const fee = parseInt(document.getElementById('docFee').value);
+            const experience_years = parseInt(document.getElementById('docExp').value);
+            const res = await fetch(`${baseUrl}/doctors`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, specialization, fee, experience_years })
+            });
+            const data = await res.json();
+            document.getElementById('addDocResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function getAppointments() {
+            const res = await fetch(`${baseUrl}/appointments`);
+            const data = await res.json();
+            document.getElementById('appointments').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function createAppointment(event) {
+            event.preventDefault();
+            const patient_name = document.getElementById('apptPatient').value;
+            const doctor_id = parseInt(document.getElementById('apptDocId').value);
+            const date = document.getElementById('apptDate').value;
+            const appointment_type = document.getElementById('apptType').value;
+            const res = await fetch(`${baseUrl}/appointments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patient_name, doctor_id, date, appointment_type })
+            });
+            const data = await res.json();
+            document.getElementById('createApptResult').textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
