@@ -22,7 +22,10 @@ Thumbs.db
 *.log
 
 # Output folder
-Output/
+Output/*
+!Output/dashboard.png
+!Output/doctors.png
+!Output/appointments.png
 
 # Database files 
 *.db
