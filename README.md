@@ -36,76 +36,61 @@ A modern, professional, and fully responsive medical management dashboard built 
 
 ```
 frontend/
-├── index.html           # Main HTML entry point
-├── css/
-│   ├── main.css        # Core layout & styling
-│   ├── components.css  # Tables, forms, modals
-│   ├── animations.css  # Page & UI animations
-│   └── responsive.css  # Mobile & tablet design
-├── js/
-│   ├── utils.js        # Utility functions & helpers
-│   ├── api.js          # API communication layer
-│   ├── charts.js       # Chart.js integration
-│   └── app.js          # Main application logic
-├── components/         # Reusable component docs
-├── pages/              # Page templates docs
-├── layouts/            # Layout components docs
-├── services/           # Service modules docs
-└── assets/             # Images & media files
+├── index.html           # Main HTML entry point for MediCare UI
+├── style.css            # Professional styling for cards, forms, and responsiveness
+backend/
+├── app/
+│   ├── main.py          # FastAPI endpoints and in-memory data model
+│   └── __pycache__/
+├── requirements.txt     # Python dependencies (fastapi, uvicorn)
+README.md
 ```
 
 ## 🚀 Quick Start
 
 ### **1. Prerequisites**
-- Node.js (for local server) or any HTTP server
-- FastAPI backend running on `http://127.0.0.1:8000`
+- Python 3.9+ with venv (recommended)
+- `fastapi` and `uvicorn` installed (see `backend/requirements.txt`)
 
-### **2. Installation**
+### **2. Backend (FastAPI)**
 
 ```bash
-# Navigate to frontend directory
-cd frontend
-
-# If using http-server (optional)
-npm install -g http-server
-
-# Start local server
-http-server .
+cd "c:\Users\desai\Desktop\VS Codes\IN226011502_FastAPI_Final_Project\backend"
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### **3. Access the Dashboard**
+### **3. Frontend (Static)**
+
+```bash
+cd "c:\Users\desai\Desktop\VS Codes\IN226011502_FastAPI_Final_Project\frontend"
+python -m http.server 8080
+```
+
+### **4. Access the UI**
 - Open your browser and go to: `http://localhost:8080` (or your server port)
 
 ## 🔗 API Integration
 
 The dashboard communicates with your FastAPI backend at `http://127.0.0.1:8000`.
 
-### **Supported API Endpoints**
+### **Supported API Endpoints (current implementation)**
+
+#### General
+- `GET /` - API health and welcome
 
 #### Doctors
 - `GET /doctors` - Get all doctors
-- `GET /doctors/{id}` - Get specific doctor
-- `GET /doctors/summary` - Get doctor summary
-- `GET /doctors/filter` - Filter doctors
-- `GET /doctors/search` - Search doctors
-- `GET /doctors/sort` - Sort doctors
-- `GET /doctors/page` - Paginate doctors
-- `GET /doctors/browse` - Browse doctors
-- `POST /doctors` - Add new doctor
-- `PUT /doctors/{id}` - Update doctor
-- `DELETE /doctors/{id}` - Delete doctor
+- `POST /doctors` - Add a new doctor
 
 #### Appointments
 - `GET /appointments` - Get all appointments
-- `GET /appointments/active` - Get active appointments
-- `GET /appointments/by-doctor/{id}` - Get appointments by doctor
-- `GET /appointments/search` - Search appointments
-- `GET /appointments/sort` - Sort appointments
-- `GET /appointments/page` - Paginate appointments
-- `POST /appointments` - Create appointment
-- `POST /appointments/{id}/confirm` - Confirm appointment
-- `POST /appointments/{id}/cancel` - Cancel appointment
-- `POST /appointments/{id}/complete` - Complete appointment
+- `POST /appointments` - Create a new appointment
+
+> Note: this demo app uses in-memory storage only, so data resets on backend restart.
+
 
 ## 🎨 Customization
 

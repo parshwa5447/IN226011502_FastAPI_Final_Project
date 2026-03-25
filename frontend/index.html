@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Clinic - Professional UI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page">
+        <header>
+            <p class="subtitle">FastAPI / In-memory demo with professional UI</p>
+            <h1 class="title">MediCare Clinic API</h1>
+        </header>
+
+        <section class="card">
+            <p class="section-title">Status / Quick Checks</p>
+            <p class="section-subtitle">Check API health and basic endpoint status in one click.</p>
+            <div class="row">
+                <button onclick="getHome()">Home</button>
+                <button onclick="getDoctors()">Get Doctors</button>
+                <button class="secondary" onclick="getAppointments()">Get Appointments</button>
+            </div>
+            <div class="row" style="gap:10px; margin-top:10px; align-items:center;">
+                <span style="font-weight:600">API status:</span>
+                <span id="apiStatus" style="padding:4px 8px; border-radius:8px; background:#fde047; color:#1f2937;">Unknown</span>
+            </div>
+            <div id="statusOutput" class="output">No output yet.</div>
+        </section>
+
+        <div class="grid">
+            <div class="card">
+                <p class="section-title">Doctors</p>
+                <p class="section-subtitle">View and add doctors (in-memory only).</p>
+
+                <div class="row">
+                    <button onclick="getDoctors()">Refresh Doctors</button>
+                </div>
+
+                <section style="margin-top: 12px;">
+                    <p class="section-subtitle">Add new doctor</p>
+                    <div class="form-grid">
+                        <input id="docName" type="text" placeholder="Name" required>
+                        <input id="docSpec" type="text" placeholder="Specialization" required>
+                        <input id="docFee" type="number" min="0" placeholder="Fee" required>
+                        <input id="docExp" type="number" min="0" placeholder="Experience Years" required>
+                    </div>
+                    <button class="small-btn" onclick="addDoctor()">Add Doctor</button>
+                </section>
+
+                <div id="doctorsOutput" class="output">No output yet.</div>
+            </div>
+
+            <div class="card">
+                <p class="section-title">Appointments</p>
+                <p class="section-subtitle">View and create appointment schedule (in-memory only).</p>
+
+                <div class="row">
+                    <button onclick="getAppointments()">Refresh Appointments</button>
+                </div>
+
+                <section style="margin-top: 12px;">
+                    <p class="section-subtitle">Schedule appointment</p>
+                    <div class="form-grid">
+                        <input id="apptPatient" type="text" placeholder="Patient Name" required>
+                        <input id="apptDocId" type="number" min="1" placeholder="Doctor ID" required>
+                        <input id="apptDate" type="date" required>
+                        <input id="apptType" type="text" placeholder="Appointment Type" required>
+                    </div>
+                    <button class="small-btn" onclick="createAppointment()">Create Appointment</button>
+                </section>
+
+                <div id="appointmentsOutput" class="output">No output yet.</div>
+            </div>
+        </div>
+
+        <footer class="footer">Remember: this demo uses in-memory data only. Refreshing the page resets state.</footer>
+    </div>
+
+    <script>
+        const hosts = ['127.0.0.1', 'localhost'];
+        const port = 8000;
+        let baseUrl = `http://${hosts[0]}:${port}`;
+
+        async function parseResponse(res) {
+            const raw = await res.text();
+            let data;
+
+            try {
+                data = raw ? JSON.parse(raw) : null;
+            } catch {
+                data = raw;
+            }
+
+            if (!res.ok) {
+                const message =
+                    (data && typeof data === 'object' && (data.detail || data.message)) ||
+                    `Request failed with status ${res.status}`;
+                throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+            }
+
+            return data;
+        }
+
+        function setApiStatus(isOk) {
+            const statusEl = document.getElementById('apiStatus');
+            if (!statusEl) return;
+            statusEl.textContent = isOk ? 'Online' : 'Offline';
+            statusEl.style.background = isOk ? '#dcfce7' : '#fee2e2';
+            statusEl.style.color = isOk ? '#166534' : '#991b1b';
+        }
+
+        async function setStatus(text) {
+            document.getElementById('statusOutput').textContent = text;
+        }
+
+        async function chooseBaseUrl() {
+            for (const host of hosts) {
+                const testUrl = `http://${host}:${port}/`;
+                try {
+                    const resp = await fetch(testUrl, {method:'GET'});
+                    if (resp.ok) {
+                        baseUrl = testUrl.slice(0, -1);
+                        return true;
+                    }
+                } catch {
+                    // try next host
+                }
+            }
+            return false;
+        }
+
+        async function getHome() {
+            try {
+                const res = await fetch(`${baseUrl}/`);
+                const data = await parseResponse(res);
+                setStatus('Home endpoint response:\n' + JSON.stringify(data, null, 2));
+                setApiStatus(true);
+            } catch (err) {
+                setStatus('Failed to fetch /: ' + err.message);
+                setApiStatus(false);
+            }
+        }
+
+        async function getDoctors() {
+            try {
+                const res = await fetch(`${baseUrl}/doctors`);
+                const data = await parseResponse(res);
+                document.getElementById('doctorsOutput').textContent = JSON.stringify(data, null, 2);
+                setStatus('Doctors fetched successfully. Count: ' + data.total);
+            } catch (err) {
+                document.getElementById('doctorsOutput').textContent = '';
+                setStatus('Failed to fetch /doctors: ' + err.message);
+            }
+        }
+
+        async function addDoctor() {
+            const name = document.getElementById('docName').value;
+            const specialization = document.getElementById('docSpec').value;
+            const fee = Number(document.getElementById('docFee').value);
+            const experience_years = Number(document.getElementById('docExp').value);
+
+            if (!name || !specialization || Number.isNaN(fee) || Number.isNaN(experience_years)) {
+                setStatus('All doctor fields are required.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${baseUrl}/doctors`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, specialization, fee, experience_years, is_available: true })
+                });
+                const data = await parseResponse(res);
+                setStatus('Add doctor response:\n' + JSON.stringify(data, null, 2));
+                getDoctors();
+            } catch (err) {
+                setStatus('Failed to add doctor: ' + err.message);
+            }
+        }
+
+        async function getAppointments() {
+            try {
+                const res = await fetch(`${baseUrl}/appointments`);
+                const data = await parseResponse(res);
+                document.getElementById('appointmentsOutput').textContent = JSON.stringify(data, null, 2);
+                setStatus('Appointments fetched successfully. Count: ' + data.total);
+            } catch (err) {
+                document.getElementById('appointmentsOutput').textContent = '';
+                setStatus('Failed to fetch /appointments: ' + err.message);
+            }
+        }
+
+        async function createAppointment() {
+            const patient_name = document.getElementById('apptPatient').value;
+            const doctor_id = Number(document.getElementById('apptDocId').value);
+            const date = document.getElementById('apptDate').value;
+            const appointment_type = document.getElementById('apptType').value;
+
+            if (!patient_name || Number.isNaN(doctor_id) || !date || !appointment_type) {
+                setStatus('All appointment fields are required.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${baseUrl}/appointments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patient_name, doctor_id, date, appointment_type })
+                });
+                const data = await parseResponse(res);
+                setStatus('Create appointment response:\n' + JSON.stringify(data, null, 2));
+                getAppointments();
+            } catch (err) {
+                setStatus('Failed to create appointment: ' + err.message);
+            }
+        }
+
+        window.onload = async function () {
+            const ok = await chooseBaseUrl();
+            setApiStatus(ok);
+            if (!ok) {
+                setStatus('Cannot connect to API on localhost or 127.0.0.1:8000');
+                return;
+            }
+
+            await getHome();
+            await getDoctors();
+            await getAppointments();
+        }
+    </script>
+</body>
+</html>

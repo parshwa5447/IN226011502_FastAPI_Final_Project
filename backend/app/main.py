@@ -1,9 +1,17 @@
 #IMPORTS
 from fastapi import FastAPI, HTTPException
-from typing import Optional
-from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # In-memory data
 doctors = [
@@ -15,6 +23,21 @@ doctors = [
 appointments = [
     {"appointment_id": 1, "patient": "John Doe", "doctor_id": 1, "date": "2023-10-01", "type": "consultation", "original_fee": 200, "final_fee": 200, "status": "scheduled"}
 ]
+
+
+class DoctorCreate(BaseModel):
+    name: str
+    specialization: str
+    fee: int = Field(ge=0)
+    experience_years: int = Field(ge=0)
+    is_available: bool = True
+
+
+class AppointmentCreate(BaseModel):
+    patient_name: str
+    doctor_id: int = Field(ge=1)
+    date: str
+    appointment_type: str
 
 #BASIC
 @app.get("/")
@@ -32,17 +55,17 @@ def get_doctors():
     }
 
 @app.post("/doctors")
-def add_doctor(name: str, specialization: str, fee: int, experience_years: int, is_available: bool = True):
-    if any(d["name"].lower() == name.lower() for d in doctors):
+def add_doctor(payload: DoctorCreate):
+    if any(d["name"].lower() == payload.name.lower() for d in doctors):
         raise HTTPException(400, "Duplicate doctor")
     new_id = max(d["id"] for d in doctors) + 1 if doctors else 1
     doctor = {
         "id": new_id,
-        "name": name,
-        "specialization": specialization,
-        "fee": fee,
-        "experience_years": experience_years,
-        "is_available": is_available
+        "name": payload.name,
+        "specialization": payload.specialization,
+        "fee": payload.fee,
+        "experience_years": payload.experience_years,
+        "is_available": payload.is_available
     }
     doctors.append(doctor)
     return {"message": "Doctor added", "doctor": doctor}
@@ -53,8 +76,8 @@ def get_appts():
     return {"total": len(appointments), "data": appointments}
 
 @app.post("/appointments")
-def create_appt(patient_name: str, doctor_id: int, date: str, appointment_type: str):
-    doctor = next((d for d in doctors if d["id"] == doctor_id), None)
+def create_appt(payload: AppointmentCreate):
+    doctor = next((d for d in doctors if d["id"] == payload.doctor_id), None)
     if not doctor:
         raise HTTPException(404, "Doctor not found")
     if not doctor["is_available"]:
@@ -62,10 +85,10 @@ def create_appt(patient_name: str, doctor_id: int, date: str, appointment_type: 
     new_id = max(a["appointment_id"] for a in appointments) + 1 if appointments else 1
     appt = {
         "appointment_id": new_id,
-        "patient": patient_name,
-        "doctor_id": doctor_id,
-        "date": date,
-        "type": appointment_type,
+        "patient": payload.patient_name,
+        "doctor_id": payload.doctor_id,
+        "date": payload.date,
+        "type": payload.appointment_type,
         "original_fee": doctor["fee"],
         "final_fee": doctor["fee"],
         "status": "scheduled"
