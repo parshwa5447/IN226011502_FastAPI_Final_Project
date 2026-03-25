@@ -1,325 +1,308 @@
-# 🏥 MediCare - Medical Management Dashboard
+# MediCare Clinic Management System
 
-A modern, professional, and fully responsive medical management dashboard built with vanilla HTML, CSS, and JavaScript. Designed to work seamlessly with the FastAPI backend for doctors and appointments management.
+A simple full-stack medical management project built with FastAPI for the backend and HTML, CSS, and JavaScript for the frontend.
 
-## ✨ Features
+This project allows users to:
+- View clinic API status
+- View doctors
+- Add new doctors
+- View appointments
+- Create appointments
 
-### 👨‍⚕️ **Doctor Dashboard**
-- **Sidebar Navigation** with smooth transitions
-- **Top Navigation Bar** with search, notifications, and profile
-- **Stat Cards** displaying key metrics
-- **Interactive Charts** (Line chart & Pie chart)
-- **Recent Activity** tracking
+The application uses in-memory storage, so data resets whenever the backend server restarts.
 
-### 📅 **Appointments Management**
-- **Appointments Table** with filtering and sorting
-- **Real-time Status Updates** (Confirmed, Pending, Cancelled, Completed)
-- **Add Appointment Modal** with date/time picker
-- **Action Buttons** (Confirm, Cancel, Complete)
-- **Advanced Filters** by date, status, and patient name
+## Project Overview
 
-### 👥 **Patient Management**
-- **Doctor Cards Grid** display
-- **Doctor Information** including specialization and fees
-- **Availability Status** (Online/Offline)
-- **Responsive Grid** layout
+This project is designed as a lightweight clinic management demo. It includes:
+- A FastAPI backend that provides REST API endpoints
+- A static frontend UI built with vanilla HTML, CSS, and JavaScript
+- Basic support for doctor and appointment management
+- CORS support so the frontend can communicate with the backend
 
-### ⚙️ **System Features**
-- **Dark Mode Toggle** with persistent storage
-- **Responsive Design** (Mobile, Tablet, Desktop)
-- **Toast Notifications** for user feedback
-- **Smooth Animations** and transitions
-- **Real-time Data Loading**
-- **Error Handling** with user-friendly messages
+## Features
 
-## 📁 Project Structure
+### Backend
+- FastAPI-based REST API
+- In-memory doctor and appointment storage
+- API endpoints for doctors and appointments
+- Duplicate doctor validation
+- Doctor availability check before creating appointments
+- Automatic appointment ID generation
 
+### Frontend
+- Clean clinic dashboard UI
+- API status indicator
+- View doctors list
+- Add doctor form
+- View appointments list
+- Create appointment form
+- Error handling for failed API requests
+
+## Tech Stack
+
+### Backend
+- Python
+- FastAPI
+- Uvicorn
+- Pydantic
+
+### Frontend
+- HTML
+- CSS
+- JavaScript
+
+## Project Structure
+
+```text
+IN226011502_FastAPI_Final_Project/
+|
+|-- backend/
+|   |-- app/
+|   |   `-- main.py
+|   `-- requirements.txt
+|
+|-- frontend/
+|   |-- index.html
+|   `-- style.css
+|
+|-- Output/
+|-- venv/
+|-- .gitignore
+`-- README.md
 ```
-frontend/
-├── index.html           # Main HTML entry point for MediCare UI
-├── style.css            # Professional styling for cards, forms, and responsiveness
-backend/
-├── app/
-│   ├── main.py          # FastAPI endpoints and in-memory data model
-│   └── __pycache__/
-├── requirements.txt     # Python dependencies (fastapi, uvicorn)
-README.md
-```
 
-## 🚀 Quick Start
+## API Endpoints
 
-### **1. Prerequisites**
-- Python 3.9+ with venv (recommended)
-- `fastapi` and `uvicorn` installed (see `backend/requirements.txt`)
+### Base
 
-### **2. Backend (FastAPI)**
+#### `GET /`
+Returns a welcome message.
 
-```bash
-cd "c:\Users\desai\Desktop\VS Codes\IN226011502_FastAPI_Final_Project\backend"
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
+Response:
 
-### **3. Frontend (Static)**
-
-```bash
-cd "c:\Users\desai\Desktop\VS Codes\IN226011502_FastAPI_Final_Project\frontend"
-python -m http.server 8080
-```
-
-### **4. Access the UI**
-- Open your browser and go to: `http://localhost:8080` (or your server port)
-
-## 🔗 API Integration
-
-The dashboard communicates with your FastAPI backend at `http://127.0.0.1:8000`.
-
-### **Supported API Endpoints (current implementation)**
-
-#### General
-- `GET /` - API health and welcome
-
-#### Doctors
-- `GET /doctors` - Get all doctors
-- `POST /doctors` - Add a new doctor
-
-#### Appointments
-- `GET /appointments` - Get all appointments
-- `POST /appointments` - Create a new appointment
-
-> Note: this demo app uses in-memory storage only, so data resets on backend restart.
-
-
-## 🎨 Customization
-
-### **Color Palette**
-Edit the CSS variables in `css/main.css`:
-
-```css
-:root {
-    --primary: #667eea;
-    --primary-dark: #764ba2;
-    --secondary: #f093fb;
-    --accent-blue: #4facfe;
-    --accent-green: #43e97b;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
+```json
+{
+  "message": "Welcome to MediCare Clinic"
 }
 ```
 
-### **Breakpoints**
-Responsive breakpoints in `css/responsive.css`:
-- **Desktop**: 1200px+
-- **Tablet**: 768px - 1199px
-- **Mobile**: Below 768px
-- **Small Mobile**: Below 480px
+### Doctors
 
-## 🎯 Key Components
+#### `GET /doctors`
+Returns all doctors and available doctor count.
 
-### **Modal System**
-```javascript
-Modal.open('appointmentModal');
-Modal.close('appointmentModal');
-Modal.toggle('appointmentModal');
+Response:
+
+```json
+{
+  "total": 3,
+  "available_count": 2,
+  "data": []
+}
 ```
 
-### **Toast Notifications**
-```javascript
-Toast.success('Operation successful');
-Toast.error('Something went wrong');
-Toast.warning('Please check your input');
-Toast.info('Information message');
+#### `POST /doctors`
+Adds a new doctor.
+
+Request body:
+
+```json
+{
+  "name": "Dr. Smith",
+  "specialization": "Cardiology",
+  "fee": 300,
+  "experience_years": 10,
+  "is_available": true
+}
 ```
 
-### **API Calls**
-```javascript
-// Get all doctors
-const doctors = await API.getDoctors();
+### Appointments
 
-// Get appointments
-const appointments = await API.getAppointments();
+#### `GET /appointments`
+Returns all appointments.
 
-// Create appointment
-await API.createAppointment({
-    patient_name: 'John Doe',
-    doctor_id: 1,
-    date: '2024-03-20',
-    reason: 'Checkup'
-});
+Response:
+
+```json
+{
+  "total": 1,
+  "data": []
+}
 ```
 
-### **Theme Toggle**
-```javascript
-Theme.dark();   // Enable dark mode
-Theme.light();  // Enable light mode
-Theme.toggle(); // Toggle theme
+#### `POST /appointments`
+Creates a new appointment.
+
+Request body:
+
+```json
+{
+  "patient_name": "John Doe",
+  "doctor_id": 1,
+  "date": "2026-03-25",
+  "appointment_type": "consultation"
+}
 ```
 
-## 📊 Charts Integration
+## How to Run the Project
 
-The dashboard uses **Chart.js** for data visualization:
+### 1. Clone the Repository
 
-- **Appointments Chart** (Line chart for weekly data)
-- **Status Chart** (Doughnut chart for appointment status)
-
-Charts are automatically initialized on page load and can be updated dynamically.
-
-## 🛡️ Error Handling
-
-All API calls include error handling with user-friendly toast notifications:
-- Network errors
-- Server errors (4xx, 5xx)
-- Validation errors
-- Timeout errors
-
-## 🔒 Security Features
-
-- XSS Protection via DOM manipulation
-- CSRF token ready (can be implemented)
-- Input validation
-- Secure local storage for settings
-- HTTPS ready configuration
-
-## 📱 Responsive Design
-
-The dashboard is fully responsive with:
-- **Mobile-first** design approach
-- **Flexible layouts** using CSS Grid & Flexbox
-- **Touch-friendly** buttons and controls
-- **Optimized** performance for all devices
-- **Adaptive** navigation for mobile
-
-## ⚡ Performance Optimizations
-
-- Minimal dependencies (only Chart.js)
-- Efficient DOM manipulation
-- Debounced search and filter operations
-- Lazy loading for data
-- CSS animations with GPU acceleration
-- Optimized images and assets
-
-## 🌙 Dark Mode
-
-- One-click dark mode toggle
-- Persistent settings using localStorage
-- Smooth theme transitions
-- All components support both themes
-
-## 🎬 Animations
-
-- **Page Transitions** (fade, slide)
-- **Card Hover Effects** (scale, shadow)
-- **Button Ripple Effects**
-- **Modal Animations** (slide-up, fade)
-- **Loading States** (skeleton, spinner)
-- **Smooth Scrolling**
-
-## 🌍 Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers
-
-## 📝 Local Storage
-
-The dashboard uses localStorage for:
-- Dark mode preference
-- User settings
-- Recent searches
-- Session data
-
-## 🔧 Development Tips
-
-### **Adding New Page**
-1. Add HTML in `index.html`
-2. Add route in `setupNavigation()`
-3. Create load function like `loadPageData()`
-4. Add CSS as needed
-
-### **Adding New API Call**
-1. Add method in `js/api.js`
-2. Include error handling
-3. Add toast notification
-4. Use in `js/app.js`
-
-### **Styling Components**
-1. Add CSS to appropriate file (`main.css`, `components.css`, etc.)
-2. Use CSS variables for consistency
-3. Ensure mobile responsiveness
-4. Test dark mode
-
-## 💡 Tips & Tricks
-
-### **Filter Appointments**
-Filters work in real-time and can be combined:
-```
-Date + Status + Patient Name = Powerful filtering
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
+cd IN226011502_FastAPI_Final_Project
 ```
 
-### **Export Data**
-Convert tables to CSV for export (feature ready for implementation)
+### 2. Create and Activate Virtual Environment
 
-### **Notifications**
-Notification bell shows count of pending items
+Windows PowerShell:
 
-### **Performance Debugging**
-Check console for performance logs:
-```javascript
-console.log('📊 Chart Manager initialized');
-console.log('🔗 API initialized');
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
 
-## 🐛 Troubleshooting
+If PowerShell blocks activation:
 
-### **Backend not connecting**
-- Verify FastAPI is running on `http://127.0.0.1:8000`
-- Check CORS settings in backend
-- Verify API endpoints are correct
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+```
 
-### **Charts not rendering**
-- Check Chart.js is loaded from CDN
-- Verify canvas elements exist in HTML
-- Check browser console for errors
+### 3. Install Dependencies
 
-### **Dark mode not working**
-- Clear browser cache
-- Check localStorage is enabled
-- Verify CSS variable support
+```powershell
+pip install -r .\backend\requirements.txt
+```
 
-### **Mobile menu stuck**
-- Clear session storage
-- Hard refresh page (Ctrl+Shift+R)
-- Check viewport meta tag
+### 4. Run the Backend
 
-## 📞 Support & Contributions
+```powershell
+cd .\backend
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
 
-For issues or improvements:
-1. Check the code comments
-2. Review API documentation
-3. Test with sample data
-4. Check browser console for errors
+Backend will run at:
 
-## 📄 License
+```text
+http://127.0.0.1:8000/
+```
 
-MediCare Dashboard © 2024. All rights reserved for healthcare use.
+### 5. Run the Frontend
 
-## 🎉 Version History
+Open a new terminal from the project root and run:
 
-- **v1.0.0** - Initial release with full features
-  - Complete dashboard UI
-  - Appointment management
-  - Doctor management
-  - Dark mode support
-  - Responsive design
-  - API integration
+```powershell
+.\venv\Scripts\Activate.ps1
+cd .\frontend
+python -m http.server 8080
+```
 
----
+Frontend will run at:
 
-**Built with ❤️ for modern healthcare management**
+```text
+http://127.0.0.1:8080/
+```
 
-For more info or customization, refer to the inline code documentation and CSS variable definitions.
+## How the Frontend Works
+
+The frontend is a static website, so it does not require React, Angular, or Node.js.
+
+It communicates with the backend using JavaScript `fetch()` requests.
+
+The UI:
+- Detects backend availability
+- Displays API status
+- Fetches doctors and appointments
+- Sends JSON data to backend endpoints
+
+## Important Notes
+
+- This project uses in-memory storage
+- Data is not saved permanently
+- Restarting the FastAPI server resets doctors and appointments
+- The frontend must be served from the `frontend` folder using `python -m http.server`
+
+## Sample Workflow
+
+1. Start backend server
+2. Start frontend server
+3. Open the frontend in browser
+4. Click `Get Doctors` to view doctors
+5. Add a new doctor using the form
+6. Create an appointment using an available doctor
+7. Refresh appointments to verify the new record
+
+## Common Issues and Fixes
+
+### Frontend not opening
+
+Make sure you are running:
+
+```powershell
+cd .\frontend
+python -m http.server 8080
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8080/
+```
+
+Do not open `index.html` directly by double-clicking.
+
+### Backend works but frontend cannot connect
+
+Make sure backend is running on:
+
+```text
+http://127.0.0.1:8000/
+```
+
+### Port already in use
+
+Use another port for frontend:
+
+```powershell
+python -m http.server 5500
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5500/
+```
+
+### Git push rejected
+
+If the GitHub repo already has files like `README.md`, pull first:
+
+```powershell
+git pull origin main --allow-unrelated-histories
+```
+
+Resolve conflicts if needed, then:
+
+```powershell
+git add .
+git commit -m "Resolve merge conflict"
+git push -u origin main
+```
+
+## Future Improvements
+
+- Database integration using SQLite or MySQL
+- User authentication
+- Update and delete APIs
+- Better appointment scheduling rules
+- Persistent storage
+- Search and filter features
+- Improved UI design and responsiveness
+
+## Author
+
+Parshwa Desai
+
+## License
+
+This project is for educational and learning purposes.
