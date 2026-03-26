@@ -71,8 +71,6 @@ IN226011502_FastAPI_Final_Project/
 
 ## 📸 Screenshots
 
-> ⚠️ Add your screenshots inside the `Output/` folder
-
 ### 🖥 Dashboard
 ![Dashboard](Output/dashboard.png)
 
